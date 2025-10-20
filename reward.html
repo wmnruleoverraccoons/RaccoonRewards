@@ -226,6 +226,63 @@
             font-size: 0.8rem; /* <-- Ändere diesen Wert, wie du magst */
             margin: 0;
         }
+
+        @media (max-width: 640px) {
+    /* Kleinere Karten */
+    .card-container {
+        width: 100px;
+        height: 150px;
+    }
+    
+    #card-grid {
+        gap: 0.5rem; /* Kleinere Abstände zwischen den Karten */
+    }
+
+    /* Kleinere Schrift auf den Karten */
+    .card-face {
+        padding: 10px;
+    }
+
+    .card-face--front {
+        font-size: 0.9rem; /* Kleinere Schrift für den Kartentitel */
+    }
+
+    .card-description {
+        font-size: 0.7rem;
+        margin-bottom: 8px;
+    }
+
+    .unlock-prompt {
+        font-size: 0.65rem;
+    }
+
+    .password-input {
+        margin-top: 5px;
+        padding: 3px;
+        font-size: 0.75rem;
+    }
+    
+    .card-face--back.unlocked h3 {
+        font-size: 0.9rem;
+    }
+     .card-face--back.unlocked p {
+        font-size: 0.75rem;
+    }
+
+    /* Kleinere Überschriften und Icon */
+    .raccoon-icon {
+        width: 2.5rem; /* 40px */
+        height: 2.5rem; /* 40px */
+    }
+
+    h1 {
+        font-size: 1.875rem; /* text-3xl */
+    }
+
+    .text-lg {
+        font-size: 1rem; /* text-base */
+    }
+}
     </style>
 </head>
 <body class="p-4 sm:p-8">
