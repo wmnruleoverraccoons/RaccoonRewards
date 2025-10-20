@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raccoon's Belohnungssystem</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn/tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -55,14 +55,13 @@
             background-position: center;
         }
 
-        .floating-element.raccoon {
-            /* Lädt das Bild aus dem GitHub-Repository */
-            background-image: url('https://wmnruleoverraccoons.github.io/RaccoonRewards/raccoon_image_png_transparent.png');
-        }
-
         .floating-element.feather {
             /* Lädt das Bild aus dem GitHub-Repository */
             background-image: url('https://wmnruleoverraccoons.github.io/RaccoonRewards/feather_image_png_transparent.png');
+        }
+        
+        .raccoon-icon {
+             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
 
         @keyframes float {
@@ -125,7 +124,20 @@
             color: var(--text-color);
             flex-direction: column;
             overflow-wrap: break-word;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
+        
+        /* Neuer Hover-Effekt */
+        @keyframes rgb-border-glow {
+            0%   { border-color: #ff4d4d; box-shadow: 0 0 12px #ff4d4d, 0 8px 32px 0 var(--shadow-color); }
+            50%  { border-color: #4d4dff; box-shadow: 0 0 12px #4d4dff, 0 8px 32px 0 var(--shadow-color); }
+            100% { border-color: #ff4d4d; box-shadow: 0 0 12px #ff4d4d, 0 8px 32px 0 var(--shadow-color); }
+        }
+
+        .card-container:hover .card-face {
+            animation: rgb-border-glow 2s infinite linear;
+        }
+
 
         .card-face--front {
             font-family: 'Playfair Display', serif;
@@ -204,7 +216,10 @@
     <div id="background-container" class="background-container"></div>
     
     <main class="text-center">
-        <h1 class="text-4xl sm:text-5xl font-bold mb-4" style="font-family: 'Playfair Display', serif;">Eine kleine Reise für Raccoon</h1>
+        <div class="flex justify-center items-center gap-4 mb-4">
+             <img src="raccoon_image_png_transparent.jpg" alt="Raccoon Symbol" class="w-16 h-16 raccoon-icon">
+            <h1 class="text-4xl sm:text-5xl font-bold" style="font-family: 'Playfair Display', serif;">Eine kleine Reise für Raccoon</h1>
+        </div>
         <p class="text-lg sm:text-xl mb-12 max-w-2xl mx-auto">Schalte Karten frei, um verborgene Schätze zu entdecken.</p>
 
         <div class="grid grid-cols-3 sm:grid-cols-5 gap-4 sm:gap-6 justify-items-center" id="card-grid">
@@ -424,23 +439,22 @@
 
             // --- Hintergrundanimation erstellen ---
             const bgContainer = document.getElementById('background-container');
-            const numElements = 40;
+            const numElements = 50; // Mehr Federn
             for (let i = 0; i < numElements; i++) {
                 const el = document.createElement('div');
-                const isRaccoon = Math.random() > 0.5;
-                el.className = `floating-element ${isRaccoon ? 'raccoon' : 'feather'}`;
+                el.className = `floating-element feather`; // Nur noch Federn
                 
-                if (Math.random() > 0.85) {
+                if (Math.random() > 0.8) {
                     el.classList.add('fast');
                 }
 
                 el.style.left = `${Math.random() * 100}vw`;
                 el.style.top = `${Math.random() * 100}vh`;
-                const size = isRaccoon ? Math.random() * 50 + 30 : Math.random() * 25 + 15;
+                const size = Math.random() * 50 + 40; // Größere Federn
                 el.style.width = `${size}px`;
                 el.style.height = `${size}px`;
-                el.style.animationDuration = `${Math.random() * 20 + 15}s`;
-                el.style.animationDelay = `${Math.random() * 10}s`;
+                el.style.animationDuration = `${Math.random() * 25 + 20}s`;
+                el.style.animationDelay = `${Math.random() * 15}s`;
                 el.style.transform = `rotate(${Math.random() * 360}deg)`;
                 bgContainer.appendChild(el);
             }
@@ -460,3 +474,4 @@
     </script>
 </body>
 </html>
+
