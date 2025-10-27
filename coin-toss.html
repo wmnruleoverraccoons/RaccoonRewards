@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Coin Toss with Timestamp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- html2canvas library for screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0a192f;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --text-color: #e6f1ff;
+            --highlight-color: #64ffda;
+            --shadow-color: rgba(10, 25, 47, 0.7);
+            --coin-gold: #ffd700;
+            --coin-silver: #c0c0c0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(10, 25, 47, 0.6) 0%, rgba(10, 25, 47, 1) 80%);
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            opacity: 0.2;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .floating-element.feather {
+            background-image: url('https://wmnruleoverraccoons.github.io/RaccoonRewards/feather_image_png_transparent.png');
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg) scale(1); opacity: 0.2; }
+            50% { transform: translateY(-20px) translateX(-20px) rotate(180deg) scale(1); opacity: 0.25;}
+            100% { transform: translateY(0px) translateX(0px) rotate(360deg) scale(1); opacity: 0.2; }
+        }
+        
+        /* Container for the element to be screenshotted */
+        #capture-area {
+             padding: 20px; /* Add some padding around the coin and text */
+             display: inline-block; /* Fit content */
+             background: rgba(17, 34, 64, 0.5); /* Slightly different bg for visual separation if needed */
+             border-radius: 10px;
+             margin-bottom: 1rem;
+        }
+
+        .coin-container {
+            perspective: 1000px;
+            margin-bottom: 1rem; /* Reduced margin */
+            width: 150px;
+            height: 150px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .coin {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .coin-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.3);
+            -webkit-backface-visibility: hidden; /* Ensure compatibility */
+        }
+
+        .coin-face--front { /* Heads */
+            background: radial-gradient(circle, var(--coin-gold) 60%, #b8860b);
+            color: #4a2c00;
+        }
+
+        .coin-face--back { /* Tails */
+            background: radial-gradient(circle, var(--coin-silver) 60%, #808080);
+            color: #333;
+            transform: rotateY(180deg);
+        }
+
+        .action-button {
+             background: #4d4dff;
+             color: white;
+             border-radius: 8px;
+             font-weight: bold;
+             cursor: pointer;
+             transition: background-color 0.3s, transform 0.1s, opacity 0.3s;
+             padding: 0.75rem 1.5rem;
+             margin: 0.5rem; /* Space between buttons */
+             border: none;
+        }
+        .action-button:hover {
+            background-color: #3b3be6;
+        }
+        .action-button:active {
+            transform: scale(0.95);
+        }
+         .action-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        #save-button {
+            background-color: var(--highlight-color);
+            color: var(--bg-color);
+            opacity: 0; /* Hidden initially */
+            pointer-events: none; /* Not clickable initially */
+        }
+         #save-button.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #save-button:hover {
+             background-color: #50e0c0;
+        }
+
+        #result-display {
+            margin-top: 0.5rem; /* Reduced margin */
+            font-size: 1.25rem;
+            min-height: 3.5em; /* Reserve space for result + timestamp */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #result-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem; /* Larger result text */
+        }
+        #timestamp-text {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+
+    <main class="w-full max-w-md p-6">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-6" style="font-family: 'Playfair Display', serif;">Let Fate Decide</h1>
+
+        <!-- Area to capture for screenshot -->
+        <div id="capture-area">
+            <div class="coin-container">
+                <div id="coin" class="coin">
+                    <div class="coin-face coin-face--front">Heads</div>
+                    <div class="coin-face coin-face--back">Tails</div>
+                </div>
+            </div>
+            <div id="result-display">
+                <p id="result-text">&nbsp;</p> <!-- Placeholder for result -->
+                <p id="timestamp-text">&nbsp;</p> <!-- Placeholder for timestamp -->
+            </div>
+        </div>
+        
+        <div>
+             <button id="flip-button" class="action-button">Flip Coin</button>
+             <button id="save-button" class="action-button">Save Result</button>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const coinElement = document.getElementById('coin');
+            const flipButton = document.getElementById('flip-button');
+            const saveButton = document.getElementById('save-button');
+            const resultText = document.getElementById('result-text');
+            const timestampText = document.getElementById('timestamp-text');
+            const captureArea = document.getElementById('capture-area');
+
+            let isFlipping = false;
+            let currentResult = 'Heads'; // Default initial state
+            let flipTimestamp = null; // To store the timestamp of the flip
+
+            function flipCoin() {
+                if (isFlipping) return;
+
+                isFlipping = true;
+                flipButton.disabled = true;
+                saveButton.classList.remove('visible'); // Hide save button during flip
+                resultText.textContent = "Flipping...";
+                timestampText.textContent = '\u00A0'; // Clear timestamp with non-breaking space
+
+                // Determine result locally
+                const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+                flipTimestamp = new Date(); // Record the exact time of the flip decision
+
+                animateFlip(result);
+            }
+
+            function animateFlip(result) {
+                // Add random rotations for visual effect
+                const randomFlips = Math.floor(Math.random() * 3) + 4; // 4 to 6 full flips
+                const finalRotation = result === 'Heads' ? 0 : 180;
+                const totalRotation = randomFlips * 360 + finalRotation;
+
+                coinElement.style.transform = `rotateY(${totalRotation}deg)`;
+
+                // Wait for the animation to finish
+                setTimeout(() => {
+                    displayResult(result);
+                    isFlipping = false;
+                    flipButton.disabled = false;
+                    saveButton.classList.add('visible'); // Show save button after flip
+                }, 1000); // Corresponds to the transition duration in CSS
+            }
+
+            function displayResult(result) {
+                currentResult = result;
+                // Ensure the final state is correct without transition
+                coinElement.style.transition = 'none';
+                if (result === 'Heads') {
+                    coinElement.style.transform = 'rotateY(0deg)';
+                    resultText.textContent = "It's Heads!";
+                } else {
+                    coinElement.style.transform = 'rotateY(180deg)';
+                    resultText.textContent = "It's Tails!";
+                }
+                
+                // Display the recorded timestamp
+                timestampText.textContent = `Flipped on: ${flipTimestamp.toLocaleString('de-DE')}`; // German locale format
+
+                // Restore transition for next flip
+                setTimeout(() => {
+                    coinElement.style.transition = 'transform 1s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                }, 50);
+            }
+
+            function saveResultAsImage() {
+                if (!flipTimestamp || isFlipping) return; // Don't save if no result or during flip
+
+                // Options for html2canvas - setting background to match body
+                 const options = {
+                    backgroundColor: getComputedStyle(document.body).backgroundColor, // Use body bg color
+                    useCORS: true // Important if images are from external sources (like feathers)
+                 };
+
+
+                html2canvas(captureArea, options).then(canvas => {
+                    // Convert canvas to image data URL
+                    const imageData = canvas.toDataURL('image/png');
+
+                    // Create a temporary link to trigger download
+                    const link = document.createElement('a');
+                    link.href = imageData;
+                    
+                    // Format filename with date and time
+                    const now = flipTimestamp;
+                    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+                    const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
+                    link.download = `coin_toss_${resultText.textContent.split(' ')[1].toLowerCase()}_${dateStr}_${timeStr}.png`;
+
+                    // Trigger download and remove link
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }).catch(err => {
+                    console.error("Error generating screenshot:", err);
+                    alert("Sorry, couldn't save the image."); // Use a more elegant notification if possible
+                });
+            }
+
+            // --- Event Listeners ---
+            flipButton.addEventListener('click', flipCoin);
+            saveButton.addEventListener('click', saveResultAsImage);
+
+            // --- Background Animation (Feathers) ---
+            function createBackgroundAnimation() {
+                const bgContainer = document.getElementById('background-container');
+                const numElements = 30;
+                for (let i = 0; i < numElements; i++) {
+                    const el = document.createElement('div');
+                    el.className = `floating-element feather`;
+                    el.style.left = `${Math.random() * 100}vw`;
+                    el.style.top = `${Math.random() * 100}vh`;
+                    const size = Math.random() * 40 + 30;
+                    el.style.width = `${size}px`;
+                    el.style.height = `${size}px`;
+                    el.style.animationDuration = `${Math.random() * 25 + 20}s`;
+                    el.style.animationDelay = `${Math.random() * 15}s`;
+                    el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    bgContainer.appendChild(el);
+                }
+            }
+            createBackgroundAnimation();
+
+            // Initial display state
+            resultText.textContent = "Ready to flip!";
+            timestampText.innerHTML = '&nbsp;'; // Non-breaking space
+            
+        });
+    </script>
+</body>
+</html>
+
