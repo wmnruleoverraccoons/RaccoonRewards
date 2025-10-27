@@ -283,6 +283,67 @@
         font-size: 1rem; /* text-base */
     }
 }
+    @media (max-width: 640px) {
+            body {
+                align-items: flex-start; /* Align content to top on small screens */
+                padding-top: 2rem;
+            }
+            main {
+                 padding: 1rem;
+            }
+             h1 {
+                font-size: 2.25rem; /* text-4xl */
+                margin-bottom: 2rem;
+            }
+             #capture-area {
+                 padding: 15px;
+             }
+
+            .coin-container {
+                width: 120px;
+                height: 120px;
+            }
+             .coin-face {
+                 /* Adjust background size if needed for smaller coin */
+                 background-size: 75%;
+             }
+
+            #result-display {
+                min-height: 3em;
+            }
+             #result-text {
+                font-size: 1.25rem; /* text-xl */
+            }
+            #timestamp-text {
+                font-size: 0.7rem;
+            }
+
+            .action-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                margin: 0.3rem;
+            }
+        }
+        /* Specific tweaks for very small screens like iPhone SE */
+         @media (max-width: 380px) {
+              h1 {
+                font-size: 1.875rem; /* text-3xl */
+              }
+             .coin-container {
+                width: 100px;
+                height: 100px;
+             }
+              .action-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+             #result-text {
+                font-size: 1.1rem;
+            }
+            #timestamp-text {
+                font-size: 0.65rem;
+            }
+         }
     </style>
 </head>
 <body class="p-4 sm:p-8">
